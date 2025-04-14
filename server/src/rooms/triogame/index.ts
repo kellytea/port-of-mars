@@ -91,10 +91,11 @@ export class TrioGameRoom extends Room<TrioGameState> {
       this.dispatcher.dispatch(new ApplyCardCmd().setPayload({ playerSkipped: true }));
     });
     this.onMessage("invest", (client, message: Invest) => {
-      this.state.getPlayer();
+      const player = this.getPlayer(client);
       this.dispatcher.dispatch(
         new PlayerInvestCmd().setPayload({
           systemHealthInvestment: message.systemHealthInvestment,
+          player,
         })
       );
     });

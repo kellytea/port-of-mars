@@ -5,7 +5,7 @@ import { TrioGameRoom } from "@port-of-mars/server/rooms/triogame";
 import { getServices } from "@port-of-mars/server/services";
 import { getRandomIntInclusive } from "@port-of-mars/server/util";
 import { EventCard, Player, TreatmentParams } from "./state";
-import { SoloGameStatus } from "@port-of-mars/shared/sologame";
+import { TrioGameStatus } from "@port-of-mars/shared/triogame";
 import { Role } from "@port-of-mars/shared/types";
 
 abstract class Cmd<Payload> extends Command<TrioGameRoom, Payload> {
@@ -51,7 +51,7 @@ export class SetPlayerCmd extends Cmd<{ users: User[] }> {
 
 export class CreateDeckCmd extends CmdWithoutPayload {
   async execute() {
-    const { triogame: service } = getServices();
+    const { litegame: service } = getServices();
     const cards = (await service.drawEventCardDeck(this.state.type)).map(
       data => new EventCard(data)
     );
@@ -65,7 +65,6 @@ export class CreateDeckCmd extends CmdWithoutPayload {
   }
 }
 
-//FIXME: isolate getting treatment according to user in services
 export class SetTreatmentParamsCmd extends Cmd<{ user: User }> {
   async execute({ user } = this.payload) {
     if (this.state.type === "freeplay") {
@@ -109,7 +108,7 @@ export class PersistGameCmd extends CmdWithoutPayload {
     const game = await triogame.createGame(this.state);
 
     if (this.state.type === "prolificVariable" || this.state.type === "prolificBaseline") {
-      await study.setProlificParticipantPlayer(this.state.type, game.player);
+      await study.setProlificParticipantPlayer(this.state.type, game.players);
     }
     this.state.gameId = game.id;
     // keep track of deck card db ids after persisting the deck
@@ -372,8 +371,7 @@ export class SetNextRoundCmd extends CmdWithoutPayload {
   }
 }
 
-export class EndGameCmd extends Cmd<{ status: SoloGameStatus }> {
-  //FIXME: change the game type status
+export class EndGameCmd extends Cmd<{ status: TrioGameStatus }> {
   async execute({ status } = this.payload) {
     this.clock.clear();
     // wait for a few seconds so the client can see the final state
