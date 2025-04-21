@@ -1,11 +1,11 @@
 import { Schema, ArraySchema, type, MapSchema } from "@colyseus/schema";
 import {
   EventCardData,
-  SoloGameParams,
-  SoloGameStatus,
-  SoloGameType,
+  TrioGameParams,
+  TrioGameStatus,
+  TrioGameType,
   TreatmentData,
-} from "@port-of-mars/shared/sologame";
+} from "@port-of-mars/shared/triogame";
 import { Role } from "@port-of-mars/shared/types";
 import { TrioGameOpts } from "./types";
 import { isProduction } from "@port-of-mars/shared/settings";
@@ -56,7 +56,7 @@ export class Player extends Schema {
 }
 
 export class TreatmentParams extends Schema {
-  @type("string") gameType: SoloGameType = "freeplay";
+  @type("string") gameType: TrioGameType = "freeplay";
   @type("boolean") isNumberOfRoundsKnown = false;
   @type("boolean") isEventDeckKnown = false;
   @type("string") thresholdInformation: "unknown" | "range" | "known" = "unknown";
@@ -74,8 +74,8 @@ export class TreatmentParams extends Schema {
 }
 
 export class TrioGameState extends Schema {
-  @type("string") type: SoloGameType = "freeplay";
-  @type("string") status: SoloGameStatus = "incomplete";
+  @type("string") type: TrioGameType = "freeplay";
+  @type("string") status: TrioGameStatus = "incomplete";
   @type("int8") systemHealth =
     TrioGameState.DEFAULTS.freeplay.systemHealthMax -
     TrioGameState.DEFAULTS.freeplay.systemHealthWear;
@@ -195,7 +195,7 @@ export class TrioGameState extends Schema {
     resources: 10,
   };
 
-  static DEFAULTS: Record<SoloGameType, SoloGameParams> = {
+  static DEFAULTS: Record<TrioGameType, TrioGameParams> = {
     freeplay: {
       maxRound: { min: 6, max: 14 },
       roundTransitionDuration: 3,

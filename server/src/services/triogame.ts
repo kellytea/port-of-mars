@@ -10,7 +10,6 @@ import {
   TrioGame,
   TrioGameRound,
   TrioGameTreatment,
-  SoloMarsEventCard,
   TrioMarsEventDeck,
   SoloMarsEventDeckCard,
   TrioPlayer,
@@ -24,60 +23,43 @@ import { getLogger } from "@port-of-mars/server/settings";
 import { TrioGameState } from "../rooms/triogame/state";
 import { getServices } from ".";
 import { TrioGameOpts } from "../rooms/triogame/types";
-import { EventDeckItem, getMarsEventDeck } from "../rooms/triogame/data/MarsEvent"; 
+import { getMarsEvents } from "../rooms/triogame/data/MarsEvent";
 
 const logger = getLogger(__filename);
 
 export class TrioGameServices extends BaseService {
-  async drawEventCardDeck(gameType: TrioGameType): Promise<EventCardData[]> {
+  async drawEventCardDeck(gameType: TrioGameType, treatmentId: string): Promise<EventCardData[]> {
     /**
-     * draw a deck of event cards from the db (ordered by id)
+     * draw a deck of event cards based on gametypr and treatment (ordered by id)
      */
-    const cards = await this.em.getRepository(SoloMarsEventCard).find({
-      where: { gameType },
-      order: { id: "ASC" },
-    });
-
-    // const cards = getMarsEventDeck(gameType);
+    const cards = getMarsEvents(gameType, treatmentId);
     const deck: EventCardData[] = [];
 
-    // for (const card of cards) {
-    //   if (card.numberOfCopies > 1) {
-    //     // expand the copies
-    //   } else {
-    //     const drawAmt = getRandomIntInclusive(card.event.drawMin, card.drawMax);
+    //TODO: handle vote-based event cards
+    for (const card of cards) {
+      const roll = getRandomIntInclusive(card.rollMin, card.rollMax);
+      // fill out templates from the db with the actual roll value and pluralization
+      const effectText = card.effect
+        .replace("{roll}", roll.toString())
+        .replace("{s}", roll === 1 ? "" : "s");
 
-    //   }
-
-
-      const drawAmt = getRandomIntInclusive(card.drawMin, card.drawMax);
-      for (let i = 0; i < drawAmt; i++) {
-        // card effects are encoded in the db with a range of possible rolls and
-        // a multiplier for each value (sys health, points, .. ), this is typically
-        // 0, 1 or -1
-        const roll = getRandomIntInclusive(card.rollMin, card.rollMax);
-        // fill out templates from the db with the actual roll value and pluralization
-        const effectText = card.effect
-          .replace("{roll}", roll.toString())
-          .replace("{s}", roll === 1 ? "" : "s");
-
-        deck.push({
-          id: card.id,
-          codeName: card.codeName,
-          displayName: card.displayName,
-          flavorText: card.flavorText,
-          effectText,
-          pointsEffect: card.pointsMultiplier * roll,
-          resourcesEffect: card.resourcesMultiplier * roll,
-          systemHealthEffect: card.systemHealthMultiplier * roll,
-        });
-      }
-    } //FIXME: change to how regular multi ver draws cards
+      deck.push({
+        codeName: card.codeName,
+        displayName: card.displayName,
+        flavorText: card.flavorText,
+        effectText,
+        pointsEffect: card.pointsMultiplier * roll,
+        resourcesEffect: card.resourcesMultiplier * roll,
+        systemHealthEffect: card.systemHealthMultiplier * roll,
+        vote: card.vote,
+        role: card.role,
+        duration: card.duration,
+      });
+    }
 
     return deck;
   }
 
-  //FIXME: how to set treatment for multiple players
   async getUserNextFreeplayTreatment(userId: number): Promise<TrioGameTreatment> {
     /**
      * get the next treatment (in order) that a user has not yet seen. If they have seen all

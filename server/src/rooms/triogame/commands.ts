@@ -6,7 +6,6 @@ import { getServices } from "@port-of-mars/server/services";
 import { getRandomIntInclusive } from "@port-of-mars/server/util";
 import { EventCard, Player, TreatmentParams } from "./state";
 import { TrioGameStatus } from "@port-of-mars/shared/triogame";
-import { Role } from "@port-of-mars/shared/types";
 
 abstract class Cmd<Payload> extends Command<TrioGameRoom, Payload> {
   get defaultParams() {
@@ -51,7 +50,7 @@ export class SetPlayerCmd extends Cmd<{ users: User[] }> {
 
 export class CreateDeckCmd extends CmdWithoutPayload {
   async execute() {
-    const { litegame: service } = getServices();
+    const { triogame: service } = getServices();
     const cards = (await service.drawEventCardDeck(this.state.type)).map(
       data => new EventCard(data)
     );

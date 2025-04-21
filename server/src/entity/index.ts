@@ -22,7 +22,7 @@ export * from "./SoloPlayer";
 export * from "./SoloPlayerDecision";
 export * from "./ProlificStudy";
 export * from "./ProlificStudyParticipant";
-// export * from "./TrioGame";
+export * from "./TrioGame";
 export * from "./TrioGameRound";
 export * from "./TrioGameTreatment";
 export * from "./TrioMarsEventDeck";

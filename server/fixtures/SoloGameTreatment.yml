@@ -3,7 +3,7 @@ items:
   # FREEPLAY TREATMENTS
   freeplayTreatment1:
     id: 1
-    gameType: freeplay
+    gameType: freeplay 
     isNumberOfRoundsKnown: false
     isEventDeckKnown: false
     thresholdInformation: unknown

@@ -1,5 +1,18 @@
+export interface EventCard {
+  codeName: string;
+  displayName: string;
+  flavorText: string;
+  effect: string;
+  rollMin: number;
+  rollMax: number;
+  systemHealthMultiplier: number;
+  pointsMultiplier: number;
+  resourcesMultiplier: number;
+  vote: boolean;
+  role?: string;
+  duration?: number;
+}
 export interface EventCardData {
-  id: number;
   deckCardId?: number;
   expired?: boolean;
   inPlay?: boolean;
@@ -10,23 +23,24 @@ export interface EventCardData {
   pointsEffect: number;
   resourcesEffect: number;
   systemHealthEffect: number;
+  vote: boolean;
+  role?: string;
+  duration?: number;
 }
 
 export type ThresholdInformation = "unknown" | "range" | "known";
-
 export interface TreatmentData {
-  gameType: TrioGameType;
-  isNumberOfRoundsKnown: boolean;
-  isEventDeckKnown: boolean;
-  thresholdInformation: ThresholdInformation;
-  isLowResSystemHealth: boolean;
+  id: string; // saachi's treatmentIndex col in TrioGame.ts
+  treatmentName: string;
+  description: string;
+  cards: Array<EventCard>;
 }
 
-export type TrioGameType = "freeplay" | "prolificBaseline" | "prolificVariable";
+export type TrioGameType = "prolific";
 
 export type TrioGameStatus = "incomplete" | "victory" | "defeat";
 
-
+// FIXME: need to adjust after finalizing event cards/treatment
 export interface TrioGameParams {
   maxRound: { min: number; max: number };
   roundTransitionDuration: number;
@@ -43,7 +57,7 @@ export interface TrioGameParams {
   resources: number;
 }
 
-export interface LtieGameClientState {
+export interface TrioGameClientState {
   type: TrioGameType;
   status: TrioGameStatus;
   timeRemaining: number;
