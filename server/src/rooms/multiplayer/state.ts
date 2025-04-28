@@ -1,13 +1,13 @@
 import { Schema, ArraySchema, type, MapSchema } from "@colyseus/schema";
 import {
   EventCardData,
-  TrioGameParams,
-  TrioGameStatus,
-  TrioGameType,
+  MultiGameParams,
+  MultiGameStatus,
+  MultiGameType,
   TreatmentData,
-} from "@port-of-mars/shared/triogame";
+} from "@port-of-mars/shared/multiplayer";
 import { Role } from "@port-of-mars/shared/types";
-import { TrioGameOpts } from "./types";
+import { MultiGameOpts } from "./types";
 import { isProduction } from "@port-of-mars/shared/settings";
 import { settings } from "@port-of-mars/server/settings";
 import { User } from "@port-of-mars/server/entity/User";
@@ -31,7 +31,6 @@ export class EventCard extends Schema {
 
   constructor(data: EventCardData) {
     super();
-    this.id = data.id;
     this.codeName = data.codeName;
     this.displayName = data.displayName;
     this.flavorText = data.flavorText;
@@ -49,14 +48,14 @@ export class EventCard extends Schema {
 export class Player extends Schema {
   userId = 0;
   @type("string") username = "";
-  @type("uint8") resources = TrioGameState.DEFAULTS.freeplay.resources;
-  @type("uint8") points = TrioGameState.DEFAULTS.freeplay.points;
+  @type("uint8") resources = MultiGameState.DEFAULTS.multiProlificBaseline.resources;
+  @type("uint8") points = MultiGameState.DEFAULTS.multiProlificBaseline.points;
   @type("uint8") pendingInvestment: number | null = null;
   @type("uint8") pointsEarned: number | null = null;
 }
 
 export class TreatmentParams extends Schema {
-  @type("string") gameType: TrioGameType = "freeplay";
+  @type("string") gameType: MultiGameType = "prolific";
   @type("boolean") isNumberOfRoundsKnown = false;
   @type("boolean") isEventDeckKnown = false;
   @type("string") thresholdInformation: "unknown" | "range" | "known" = "unknown";
@@ -65,7 +64,6 @@ export class TreatmentParams extends Schema {
   constructor(data?: TreatmentData) {
     super();
     if (!data) return;
-    this.gameType = data.gameType;
     this.isNumberOfRoundsKnown = data.isNumberOfRoundsKnown;
     this.isEventDeckKnown = data.isEventDeckKnown;
     this.thresholdInformation = data.thresholdInformation;
@@ -73,13 +71,13 @@ export class TreatmentParams extends Schema {
   }
 }
 
-export class TrioGameState extends Schema {
-  @type("string") type: TrioGameType = "freeplay";
-  @type("string") status: TrioGameStatus = "incomplete";
+export class MultiGameState extends Schema {
+  @type("string") type: MultiGameType = "multiProlificBaseline";
+  @type("string") status: MultiGameStatus = "incomplete";
   @type("int8") systemHealth =
-    TrioGameState.DEFAULTS.freeplay.systemHealthMax -
-    TrioGameState.DEFAULTS.freeplay.systemHealthWear;
-  @type("uint8") timeRemaining = TrioGameState.DEFAULTS.freeplay.timeRemaining;
+    MultiGameState.DEFAULTS.multiProlificBaseline.systemHealthMax -
+    MultiGameState.DEFAULTS.multiProlificBaseline.systemHealthWear;
+  @type("uint8") timeRemaining = MultiGameState.DEFAULTS.multiProlificBaseline.timeRemaining;
   @type("uint8") round = 1;
   @type(TreatmentParams) treatmentParams = new TreatmentParams();
 
@@ -97,7 +95,7 @@ export class TrioGameState extends Schema {
   @type("boolean") canInvest = false;
   @type("boolean") isRoundTransitioning = false;
 
-  constructor(data: TrioGameOpts) {
+  constructor(data: MultiGameOpts) {
     super();
     if (isProduction()) {
       assert.equal(data.users.length, 3, "Must have three players");
@@ -109,12 +107,12 @@ export class TrioGameState extends Schema {
   gameId!: number;
   users: Array<User> = [];
   availableRoles: Array<Role> = ["Politician", "Entrepreneur", "Researcher"]; // temporarily subset of roles for trio version
-  roundInitialSystemHealth = TrioGameState.DEFAULTS.freeplay.systemHealthMax;
+  roundInitialSystemHealth = MultiGameState.DEFAULTS.multiProlificBaseline.systemHealthMax;
   roundInitialPoints: Array<number> = [];
   // hidden properties
-  maxRound = TrioGameState.DEFAULTS.freeplay.maxRound.max;
-  twoEventsThreshold = TrioGameState.DEFAULTS.freeplay.twoEventsThreshold.max;
-  threeEventsThreshold = TrioGameState.DEFAULTS.freeplay.threeEventsThreshold.max;
+  maxRound = MultiGameState.DEFAULTS.multiProlificBaseline.maxRound.max;
+  twoEventsThreshold = MultiGameState.DEFAULTS.multiProlificBaseline.twoEventsThreshold.max;
+  threeEventsThreshold = MultiGameState.DEFAULTS.multiProlificBaseline.threeEventsThreshold.max;
   eventCardDeck: Array<EventCard> = [];
 
   get points() {
@@ -185,7 +183,7 @@ export class TrioGameState extends Schema {
   }
 
   get defaultParams() {
-    return TrioGameState.DEFAULTS[this.type];
+    return MultiGameState.DEFAULTS[this.type];
   }
 
   static STATIC_PARAMS = {
@@ -195,38 +193,50 @@ export class TrioGameState extends Schema {
     resources: 10,
   };
 
-  static DEFAULTS: Record<TrioGameType, TrioGameParams> = {
-    freeplay: {
-      maxRound: { min: 6, max: 14 },
+  static DEFAULTS: Record<MultiGameType, MultiGameParams> = {
+    multiProlificBaseline: {
+      maxRound: { min: 8, max: 12 },
       roundTransitionDuration: 3,
       twoEventsThreshold: { min: 12, max: 20 },
       threeEventsThreshold: { min: 5, max: 15 },
       timeRemaining: 30,
       eventTimeout: 10,
       startingSystemHealth: 20,
-      ...TrioGameState.STATIC_PARAMS,
+      numPlayers: 3,
+      ...MultiGameState.STATIC_PARAMS,
     },
-    prolificBaseline: {
-      maxRound: { min: 8, max: 8 },
-      roundTransitionDuration: 1,
-      twoEventsThreshold: { min: -1, max: -1 },
-      threeEventsThreshold: { min: -2, max: -2 },
-      timeRemaining: 15,
-      eventTimeout: 5,
-      startingSystemHealth: 15,
-      ...TrioGameState.STATIC_PARAMS,
+    multiProlificInterative: {
+      maxRound: { min: 8, max: 12 },
+      roundTransitionDuration: 3,
+      twoEventsThreshold: { min: 12, max: 20 },
+      threeEventsThreshold: { min: 5, max: 15 },
+      timeRemaining: 30,
+      eventTimeout: 10,
+      startingSystemHealth: 20,
+      numPlayers: 3,
+      ...MultiGameState.STATIC_PARAMS,
     },
-    prolificVariable: {
-      maxRound: { min: 11, max: 11 },
-      roundTransitionDuration: 1,
-      twoEventsThreshold: { min: 16, max: 16 },
-      threeEventsThreshold: { min: 9, max: 9 },
-      twoEventsThresholdDisplayRange: { min: 12, max: 18 },
-      threeEventsThresholdDisplayRange: { min: 5, max: 11 },
-      timeRemaining: 15,
-      eventTimeout: 5,
-      startingSystemHealth: 15,
-      ...TrioGameState.STATIC_PARAMS,
-    },
+    // prolificBaseline: {
+    //   maxRound: { min: 8, max: 8 },
+    //   roundTransitionDuration: 1,
+    //   twoEventsThreshold: { min: -1, max: -1 },
+    //   threeEventsThreshold: { min: -2, max: -2 },
+    //   timeRemaining: 15,
+    //   eventTimeout: 5,
+    //   startingSystemHealth: 15,
+    //   ...MultiGameState.STATIC_PARAMS,
+    // },
+    // prolificVariable: {
+    //   maxRound: { min: 11, max: 11 },
+    //   roundTransitionDuration: 1,
+    //   twoEventsThreshold: { min: 16, max: 16 },
+    //   threeEventsThreshold: { min: 9, max: 9 },
+    //   twoEventsThresholdDisplayRange: { min: 12, max: 18 },
+    //   threeEventsThresholdDisplayRange: { min: 5, max: 11 },
+    //   timeRemaining: 15,
+    //   eventTimeout: 5,
+    //   startingSystemHealth: 15,
+    //   ...MultiGameState.STATIC_PARAMS,
+    // },
   };
 }

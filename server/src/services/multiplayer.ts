@@ -1,12 +1,12 @@
 import { BaseService } from "@port-of-mars/server/services/db";
 import {
   EventCardData,
-  TrioGameStatus,
-  TrioGameType,
+  MultiGameStatus,
+  MultiGameType,
   TreatmentData,
-} from "@port-of-mars/shared/triogame/types";
+} from "@port-of-mars/shared/multiplayer/types";
 import {
-  //FIXME: change solo entities to trio/lite
+  //FIXME: change solo entities to multi
   TrioGame,
   TrioGameRound,
   TrioGameTreatment,
@@ -20,41 +20,66 @@ import {
 import { getRandomIntInclusive } from "@port-of-mars/server/util";
 import { createObjectCsvWriter } from "csv-writer";
 import { getLogger } from "@port-of-mars/server/settings";
-import { TrioGameState } from "../rooms/triogame/state";
+import { MultiGameState } from "../rooms/multiplayer/state";
 import { getServices } from ".";
-import { TrioGameOpts } from "../rooms/triogame/types";
-import { getMarsEvents } from "../rooms/triogame/data/MarsEvent";
+import { MultiGameOpts } from "../rooms/multiplayer/types";
 
 const logger = getLogger(__filename);
 
-export class TrioGameServices extends BaseService {
-  async drawEventCardDeck(gameType: TrioGameType, treatmentId: string): Promise<EventCardData[]> {
+export class MultiplayerService extends BaseService {
+  async drawEventCardDeck(gameType: MultiGameType, treatmentId: string): Promise<EventCardData[]> {
     /**
-     * draw a deck of event cards based on gametypr and treatment (ordered by id)
+     * draw a deck of event cards based on gametype and treatment (ordered by id)
      */
-    const cards = getMarsEvents(gameType, treatmentId);
+    const cards = await this.em.getRepository(MultiplayerEventCard).find({
+      where: { gameType },
+      order: { id: "ASC" },
+    });
     const deck: EventCardData[] = [];
 
-    //TODO: handle vote-based event cards
-    for (const card of cards) {
-      const roll = getRandomIntInclusive(card.rollMin, card.rollMax);
-      // fill out templates from the db with the actual roll value and pluralization
-      const effectText = card.effect
-        .replace("{roll}", roll.toString())
-        .replace("{s}", roll === 1 ? "" : "s");
+    // export function cloneCards(codeName: string, copies: number): Array<EventCard> {
+    //   const card = _.find(_availableEvents, (e: EventCard) => e.codeName === codeName);
+    //   if (card) {
+    //     return Array.from({ length: copies }, () => ({ ...card }));
+    //   } else {
+    //     logger.warn("Unable to find event card with codeName %s", codeName);
+    //     return [];
+    //   }
+    // }
 
-      deck.push({
-        codeName: card.codeName,
-        displayName: card.displayName,
-        flavorText: card.flavorText,
-        effectText,
-        pointsEffect: card.pointsMultiplier * roll,
-        resourcesEffect: card.resourcesMultiplier * roll,
-        systemHealthEffect: card.systemHealthMultiplier * roll,
-        vote: card.vote,
-        role: card.role,
-        duration: card.duration,
-      });
+    // export function getMarsEvents(gameType: MultiGameType, treatmentId: string): Array<EventCard> {
+    //   const deck = _.find(_deckSets[gameType], (t: TreatmentData) => t.id === treatmentId);
+    //   if (deck) {
+    //     return deck.cards;
+    //   } else {
+    //     logger.warn("No treatment ID found in deck setL %s", treatmentId);
+    //     throw new Error(`No treatment ID found in deck set: ${treatmentId}`);
+    //   }
+    // }
+
+    for (const card of cards) {
+      const drawAmt = getRandomIntInclusive(card.drawMin, card.drawMax);
+      for (let i = 0; i < drawAmt; i++) {
+        // card effects are encoded in the db with a range of possible rolls and
+        // a multiplier for each value (sys health, points, .. ), this is typically
+        // 0, 1 or -1
+        const roll = getRandomIntInclusive(card.rollMin, card.rollMax);
+        // fill out templates from the db with the actual roll value and pluralization
+        const effectText = card.effect
+          .replace("{roll}", roll.toString())
+          .replace("{s}", roll === 1 ? "" : "s");
+
+        deck.push({
+          id: card.id,
+          codeName: card.codeName,
+          displayName: card.displayName,
+          flavorText: card.flavorText,
+          effectText,
+          pointsEffect: card.pointsMultiplier * roll,
+          resourcesEffect: card.resourcesMultiplier * roll,
+          systemHealthEffect: card.systemHealthMultiplier * roll,
+        });
+      }
     }
 
     return deck;
@@ -105,7 +130,7 @@ export class TrioGameServices extends BaseService {
     return this.em.getRepository(TrioGameTreatment).findOneByOrFail({ id });
   }
 
-  async buildGameOpts(usernames: Array<string>): Promise<TrioGameOpts> {
+  async buildGameOpts(usernames: Array<string>): Promise<MultiGameOpts> {
     const services = getServices();
     for (const u of usernames) {
       logger.debug("username: %s", u);
@@ -119,11 +144,11 @@ export class TrioGameServices extends BaseService {
     );
     return {
       users: playerData,
-      type: "freeplay", //placeholder for now
+      type: "multiProlificBaseline", //placeholder for now
     };
   }
 
-  async createGame(state: TrioGameState): Promise<TrioGame> {
+  async createGame(state: MultiGameState): Promise<TrioGame> {
     /**
      * create a new TrioGame in the db and return it
      */
@@ -206,7 +231,7 @@ export class TrioGameServices extends BaseService {
     return deck;
   }
 
-  async updateGameStatus(gameId: number, status: TrioGameStatus) {
+  async updateGameStatus(gameId: number, status: MultiGameStatus) {
     const repo = this.em.getRepository(TrioGame);
     const game = await repo.findOneByOrFail({ id: gameId });
     game.status = status;
@@ -217,7 +242,7 @@ export class TrioGameServices extends BaseService {
     gameId: number,
     points: number,
     maxRound: number,
-    status: TrioGameStatus
+    status: MultiGameStatus
   ) {
     const repo = this.em.getRepository(TrioPlayer);
     const player = await repo.findOneByOrFail({ gameId });
@@ -230,7 +255,7 @@ export class TrioGameServices extends BaseService {
   }
 
   async createRound(
-    state: TrioGameState,
+    state: MultiGameState,
     systemHealthInvestment: number,
     pointsInvestment: number
   ) {
@@ -267,7 +292,7 @@ export class TrioGameServices extends BaseService {
     return round;
   }
 
-  async getGameIds(type: TrioGameType, start?: Date, end?: Date): Promise<Array<number>> {
+  async getGameIds(type: MultiGameType, start?: Date, end?: Date): Promise<Array<number>> {
     /**
      * get all game ids for games of a certain type that were created between start and end
      */

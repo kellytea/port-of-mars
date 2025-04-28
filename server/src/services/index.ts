@@ -9,7 +9,7 @@ import { StatsService } from "@port-of-mars/server/services/stats";
 import { TimeService } from "@port-of-mars/server/services/time";
 import { GameService } from "@port-of-mars/server/services/game";
 import { SoloGameService } from "@port-of-mars/server/services/sologame";
-import { TrioGameService } from "@port-of-mars/server/services/triogame";
+import { MultiplayerService } from "@port-of-mars/server/services/multiplayer";
 import { RedisSettings } from "@port-of-mars/server/services/settings";
 import dataSource from "@port-of-mars/server/datasource";
 import { createClient, RedisClient } from "redis";
@@ -50,12 +50,12 @@ export class ServiceProvider {
     return this._sologame;
   }
 
-  private _triogame?: TrioGameService;
-  get triogame(): TrioGameService {
-    if (!this._triogame) {
-      this._triogame = new TrioGameService(this);
+  private _multiplayer?: MultiplayerService;
+  get multiplayer(): MultiplayerService {
+    if (!this._multiplayer) {
+      this._multiplayer = new MultiplayerService(this);
     }
-    return this._triogame;
+    return this._multiplayer;
   }
 
   private _quiz?: QuizService;

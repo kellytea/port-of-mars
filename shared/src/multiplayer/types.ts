@@ -1,18 +1,24 @@
-export interface EventCard {
-  codeName: string;
-  displayName: string;
-  flavorText: string;
-  effect: string;
-  rollMin: number;
-  rollMax: number;
-  systemHealthMultiplier: number;
-  pointsMultiplier: number;
-  resourcesMultiplier: number;
-  vote: boolean;
-  role?: string;
-  duration?: number;
-}
+// FIXME: remove this if multi event cards are being saved into the db
+// export interface EventCard {
+//   id: number;
+//   codeName: string;
+//   displayName: string;
+//   flavorText: string;
+//   effect: string;
+//   drawMin: number;
+//   drawMax: number;
+//   rollMin: number;
+//   rollMax: number;
+//   systemHealthMultiplier: number;
+//   pointsMultiplier: number;
+//   resourcesMultiplier: number;
+//   vote?: EventVoteType;
+//   role?: string;
+//   duration?: number;
+// }
+
 export interface EventCardData {
+  id: number;
   deckCardId?: number;
   expired?: boolean;
   inPlay?: boolean;
@@ -23,31 +29,35 @@ export interface EventCardData {
   pointsEffect: number;
   resourcesEffect: number;
   systemHealthEffect: number;
-  vote: boolean;
+  vote?: EventVoteType;
   role?: string;
   duration?: number;
 }
 
 export type ThresholdInformation = "unknown" | "range" | "known";
+
+//FIXME: treatment stuff needs to be refactored
 export interface TreatmentData {
-  id: string; // saachi's treatmentIndex col in TrioGame.ts
+  id: string;
   treatmentName: string;
   description: string;
-  cards: Array<EventCard>;
+  cards: Array<EventCardData>;
 }
 
-export type TrioGameType = "prolific";
+export type MultiGameType = "multiProlificBaseline" | "multiProlificInterative";
 
-export type TrioGameStatus = "incomplete" | "victory" | "defeat";
+export type MultiGameStatus = "incomplete" | "victory" | "defeat";
 
-// FIXME: need to adjust after finalizing event cards/treatment
-export interface TrioGameParams {
+export type EventVoteType = "YES_OR_NO" | "VOTE_PLAYER";
+
+export interface MultiGameParams {
   maxRound: { min: number; max: number };
   roundTransitionDuration: number;
   twoEventsThreshold: { min: number; max: number };
   threeEventsThreshold: { min: number; max: number };
   twoEventsThresholdDisplayRange?: { min: number; max: number };
   threeEventsThresholdDisplayRange?: { min: number; max: number };
+  numPlayers: number;
   systemHealthMax: number;
   systemHealthWear: number;
   startingSystemHealth: number;
@@ -57,9 +67,9 @@ export interface TrioGameParams {
   resources: number;
 }
 
-export interface TrioGameClientState {
-  type: TrioGameType;
-  status: TrioGameStatus;
+export interface MultiClientState {
+  type: MultiGameType;
+  status: MultiGameStatus;
   timeRemaining: number;
   systemHealth: number;
   twoEventsThreshold?: number;

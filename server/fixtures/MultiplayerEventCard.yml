@@ -1,0 +1,271 @@
+entity: MultiplayerEventCard
+items:
+  # PROLIFIC EVENT CARDS
+  prolificBaselineEvent1:
+    id: 1
+    gameType: prolificBaseline
+    codeName: "lifeAsUsual"
+    displayName: "Life As Usual"
+    flavorText: "As the first human outpost on Mars, having a \"usual\" day is pretty unusual."
+    effect: "No special effect."
+    drawMin: 1
+    drawMax: 1
+    rollMin: 0
+    rollMax: 0
+    systemHealthMultiplier: 0
+    pointsMultiplier: 0
+    resourcesMultiplier: 0
+  prolificBaselineEvent2: # needs special casing (draw 2 more cards)
+    id: 2
+    gameType: prolificBaseline
+    codeName: "murphysLaw"
+    displayName: "Murphy's Law"
+    flavorText: "Residents at Port of Mars know better than to ask, \"what ELSE could go wrong?\""
+    effect: "Reveal 2 more events for this round."
+    drawMin: 1
+    drawMax: 1
+    rollMin: 0
+    rollMax: 0
+    systemHealthMultiplier: 0
+    pointsMultiplier: 0
+    resourcesMultiplier: 0
+  prolificBaselineEvent3:
+    id: 3
+    gameType: prolificBaseline
+    codeName: "lostTime"
+    displayName: "Lost Time"
+    flavorText: "Time flies when you're trying to stay alive."
+    effect: "Lose {roll} resource{s} for this round."
+    drawMin: 1
+    drawMax: 1
+    rollMin: 1
+    rollMax: 8
+    systemHealthMultiplier: 0
+    pointsMultiplier: 0
+    resourcesMultiplier: -1
+  prolificBaselineEvent4:
+    id: 4
+    gameType: prolificBaseline
+    codeName: "richDeposit"
+    displayName: "Rich Deposit"
+    flavorText: "A stroke of luck in an otherwise unlucky day."
+    effect: "Gain {roll} resource{s} for this round."
+    drawMin: 1
+    drawMax: 1
+    rollMin: 1
+    rollMax: 8
+    systemHealthMultiplier: 0
+    pointsMultiplier: 0
+    resourcesMultiplier: 1
+  prolificBaselineEvent5:
+    id: 5
+    gameType: prolificBaseline
+    codeName: "urgentRepairs"
+    displayName: "Urgent Repairs"
+    flavorText: "No pneumatic tires on mars, but there are always holes to patch."
+    effect: "{roll} resource{s} are immediately diverted to system health."
+    drawMin: 1
+    drawMax: 1
+    rollMin: 2
+    rollMax: 7
+    systemHealthMultiplier: 1
+    pointsMultiplier: 0
+    resourcesMultiplier: -1
+  prolificBaselineEvent6:
+    id: 6
+    gameType: prolificBaseline
+    codeName: "hullBreach"
+    displayName: "Hull Breach"
+    flavorText: "Accidents happen. It's unavoidable. Our job is to do our best to avoid them all the same."
+    effect: "Lose {roll} system health."
+    drawMin: 4
+    drawMax: 4
+    rollMin: 1
+    rollMax: 10
+    systemHealthMultiplier: -1
+    pointsMultiplier: 0
+    resourcesMultiplier: 0
+  prolificBaselineEvent7:
+    id: 7
+    gameType: prolificBaseline
+    codeName: "softwareUpgrade"
+    displayName: "Software Upgrade"
+    flavorText: "A much needed patch to the system comes online."
+    effect: "Gain {roll} system health."
+    drawMin: 4
+    drawMax: 4
+    rollMin: 1
+    rollMax: 10
+    systemHealthMultiplier: 1
+    pointsMultiplier: 0
+    resourcesMultiplier: 0
+  prolificBaselineEvent8:
+    id: 8
+    gameType: prolificBaseline
+    codeName: "lostCargo"
+    displayName: "Lost Cargo"
+    flavorText: "Precious cargo, now forever Martian property."
+    effect: "Lose {roll} point{s}."
+    drawMin: 4
+    drawMax: 4
+    rollMin: 1
+    rollMax: 10
+    systemHealthMultiplier: 0
+    pointsMultiplier: -1
+    resourcesMultiplier: 0
+  prolificBaselineEvent9:
+    id: 9
+    gameType: prolificBaseline
+    codeName: "hitTheMotherlode"
+    displayName: "Hit the Motherlode"
+    flavorText: "A valuable find. Fortunately for us, not that useful for repairs."
+    effect: "Gain {roll} point{s}."
+    drawMin: 4
+    drawMax: 4
+    rollMin: 1
+    rollMax: 10
+    systemHealthMultiplier: 0
+    pointsMultiplier: 1
+    resourcesMultiplier: 0
+  # PROLIFIC INTERACTIVE EVENTS
+  # prolificInteractiveEvent1:
+  #   id: 10
+  #   gameType: prolificInteractive
+  #   codeName: "personalGain"
+  #   displayName: "Personal Gain"
+  #   flavorText: "It’s easy to take risks when others are incurring the costs."
+  #   effect: "Each player secretly chooses Yes or No. Then, simultaneously, players reveal their choice. Players who chose yes gain 6 extra resources this round, but destroy 6 System Health."
+  #   drawMin: 1
+  #   drawMax: 1
+  #   rollMin: 6
+  #   rollMax: 6
+  #   systemHealthMultiplier: -1
+  #   pointsMultiplier: 0
+  #   resourcesMultiplier: 1
+  #   vote: "YES_OR_NO"
+  # prolificInteractiveEvent2:
+  #   id: 11
+  #   gameType: prolificInteractive
+  #   codeName: "compulsivePhilanthropy"
+  #   displayName: "Compulsive Philanthropy"
+  #   flavorText: "There’s nothing quite like being volun-told for the greater good."
+  #   effect: "Players must vote one player to put all their resources into System Health this round."
+  #   drawMin: 1
+  #   drawMax: 1
+  #   rollMin: 0
+  #   rollMax: 0
+  #   systemHealthMultiplier: 0
+  #   pointsMultiplier: 0
+  #   resourcesMultiplier: 0
+  #   vote: "VOTE_PLAYER"
+  # prolificInteractiveEvent3:
+  #   id: 12
+  #   gameType: prolificInteractive
+  #   codeName: "heroOrPariah"
+  #   displayName: "Hero or Pariah"
+  #   flavorText: "In a community as small as Port of Mars, some individuals always stand out--for better or worse."
+  #   effect: "CHOOSE ONE: Players must vote for 1 player to lose 5 Points OR Players must vote or 1 player to gain 5 Points."
+  #   drawMin: 1
+  #   drawMax: 1
+  #   rollMin: 0
+  #   rollMax: 0
+  #   systemHealthMultiplier: 0
+  #   pointsMultiplier: 0
+  #   resourcesMultiplier: 0
+  #   vote: "VOTE_PLAYER"
+  # prolificInteractiveEvent4:
+  #   id: 13
+  #   gameType: prolificInteractive
+  #   codeName: "grantFunk"
+  #   displayName: "Grand Funk"
+  #   flavorText: "Your latest failure to gain research funding sees you in bed for a week. It’s not moping, it’s mourning. (And time to draft up new proposals.)"
+  #   effect: "You have to decide to accept or not the following offer: Gain 3 points for yourselves, but destroy 4 System Health."
+  #   drawMin: 1
+  #   drawMax: 1
+  #   rollMin: 0
+  #   rollMax: 0
+  #   systemHealthMultiplier: 0
+  #   pointsMultiplier: 0
+  #   resourcesMultiplier: 0
+  #   role: "Researcher"
+  #   vote: "YES_OR_NO"    
+  # prolificInteractiveEvent5:
+  #   id: 14
+  #   gameType: prolificInteractive
+  #   codeName: "cuttingCorners"
+  #   displayName: "Cutting Corners"
+  #   flavorText: "Surely these slightly sub-standard building materials won’t cause that big a problem – and look at the profits!"
+  #   effect: "You have to decide to accept or not the following offer: Gain 3 points for yourselves, but destroy 4 System Health."
+  #   drawMin: 1
+  #   drawMax: 1
+  #   rollMin: 0
+  #   rollMax: 0
+  #   systemHealthMultiplier: 0
+  #   pointsMultiplier: 0
+  #   resourcesMultiplier: 0
+  #   role: "Entrepreneur"
+  #   vote: "YES_OR_NO"
+  # prolificInteractiveEvent6:
+  #   id: 15
+  #   gameType: prolificInteractive
+  #   codeName: "shortTermGoals"
+  #   displayName: "Short-Term Gains"
+  #   flavorText:  "You made some outlandish promises to specific groups to win the election. Easy! Now you have to find funding to fulfill those promises…less easy."
+  #   effect: "You have to decide to accept or not the following offer: Gain 3 points for yourselves, but destroy 4 System Health."
+  #   drawMin: 1
+  #   drawMax: 1
+  #   rollMin: 0
+  #   rollMax: 0
+  #   systemHealthMultiplier: 0
+  #   pointsMultiplier: 0
+  #   resourcesMultiplier: 0
+  #   role: "Politician"
+  #   vote: "YES_OR_NO"            
+  # prolificInteractiveEvent7:
+  #   id: 16
+  #   gameType: prolificInteractive
+  #   codeName: "mutantCrops"
+  #   displayName: "Mutant Crops"
+  #   flavorText:  "Your attempt to improve food production processes may wipe out an entire crop. Pro: You may get incredible data! Con: You may all starve to death."
+  #   effect: "You have to decide to accept or not the following offer: Gain 6 points for yourselves, but destroy 8 System Health."
+  #   drawMin: 1
+  #   drawMax: 1
+  #   rollMin: 0
+  #   rollMax: 0
+  #   systemHealthMultiplier: 0
+  #   pointsMultiplier: 0
+  #   resourcesMultiplier: 0
+  #   role: "Researcher"
+  #   vote: "YES_OR_NO"              
+  # prolificInteractiveEvent8:
+  #   id: 17
+  #   gameType: prolificInteractive
+  #   codeName: "insiderTrading"
+  #   displayName: "Insider Trading"
+  #   flavorText:  "You can make an opportunistic move to sell a huge chunk of your ownership in Port of Mars stock, making a pretty penny but causing a panic in the market."
+  #   effect: "You have to decide to accept or not the following offer: Gain 6 points for yourselves, but destroy 8 System Health."
+  #   drawMin: 1
+  #   drawMax: 1
+  #   rollMin: 0
+  #   rollMax: 0
+  #   systemHealthMultiplier: 0
+  #   pointsMultiplier: 0
+  #   resourcesMultiplier: 0
+  #   role: "Entrepreneur"
+  #   vote: "YES_OR_NO" 
+  # prolificInteractiveEvent9:
+  #   id: 18
+  #   gameType: prolificInteractive
+  #   codeName: "bribes"
+  #   displayName: "Bribes"
+  #   flavorText:  "Special interest groups approach you to craft legislation that favors their autonomy. They’re a powerful voting bloc… but is it worth the costs?"
+  #   effect: "You have to decide to accept or not the following offer: Gain 6 points for yourselves, but destroy 8 System Health."
+  #   drawMin: 1
+  #   drawMax: 1
+  #   rollMin: 0
+  #   rollMax: 0
+  #   systemHealthMultiplier: 0
+  #   pointsMultiplier: 0
+  #   resourcesMultiplier: 0
+  #   role: "Politician"
+  #   vote: "YES_OR_NO"     

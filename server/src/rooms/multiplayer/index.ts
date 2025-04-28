@@ -1,7 +1,7 @@
 import { Client, Delayed, Room } from "colyseus";
 import { Dispatcher } from "@colyseus/command";
 import * as http from "http";
-import { TrioGameState, Player } from "@port-of-mars/server/rooms/triogame/state";
+import { MultiGameState, Player } from "@port-of-mars/server/rooms/multiplayer/state";
 import { settings } from "@port-of-mars/server/settings";
 import { getServices } from "@port-of-mars/server/services";
 import {
@@ -13,11 +13,11 @@ import {
 } from "./commands";
 import { User } from "@port-of-mars/server/entity";
 import { EventContinue, Invest } from "@port-of-mars/shared/sologame";
-import { TrioGameOpts } from "@port-of-mars/server/rooms/triogame/types";
+import { MultiGameOpts } from "@port-of-mars/server/rooms/multiplayer/types";
 
 const logger = settings.logging.getLogger(__filename);
 
-export class TrioGameRoom extends Room<TrioGameState> {
+export class MultiGameRoom extends Room<MultiGameState> {
   public static get NAME() {
     return "trio_game_room";
   }
@@ -29,9 +29,9 @@ export class TrioGameRoom extends Room<TrioGameState> {
   dispatcher = new Dispatcher(this);
   eventTimeout: Delayed | null = null;
 
-  async onCreate(options: TrioGameOpts) {
+  async onCreate(options: MultiGameOpts) {
     logger.trace("TrioGameRoom '%s' created", this.roomId);
-    this.setState(new TrioGameState(options));
+    this.setState(new MultiGameState(options));
     this.state.type = options.type || "freeplay";
     this.setPrivate(true);
     this.registerAllHandlers();

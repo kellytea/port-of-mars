@@ -1,13 +1,13 @@
 import _ from "lodash";
 import { Command } from "@colyseus/command";
 import { User } from "@port-of-mars/server/entity";
-import { TrioGameRoom } from "@port-of-mars/server/rooms/triogame";
+import { MultiGameRoom } from "@port-of-mars/server/rooms/multiplayer";
 import { getServices } from "@port-of-mars/server/services";
 import { getRandomIntInclusive } from "@port-of-mars/server/util";
 import { EventCard, Player, TreatmentParams } from "./state";
-import { TrioGameStatus } from "@port-of-mars/shared/triogame";
+import { MultiGameStatus } from "@port-of-mars/shared/multiplayer";
 
-abstract class Cmd<Payload> extends Command<TrioGameRoom, Payload> {
+abstract class Cmd<Payload> extends Command<MultiGameRoom, Payload> {
   get defaultParams() {
     return this.state.defaultParams;
   }
@@ -50,7 +50,7 @@ export class SetPlayerCmd extends Cmd<{ users: User[] }> {
 
 export class CreateDeckCmd extends CmdWithoutPayload {
   async execute() {
-    const { triogame: service } = getServices();
+    const { multiplayer: service } = getServices();
     const cards = (await service.drawEventCardDeck(this.state.type)).map(
       data => new EventCard(data)
     );
@@ -66,8 +66,8 @@ export class CreateDeckCmd extends CmdWithoutPayload {
 
 export class SetTreatmentParamsCmd extends Cmd<{ user: User }> {
   async execute({ user } = this.payload) {
-    if (this.state.type === "freeplay") {
-      const { triogame: service } = getServices();
+    if (this.state.type === "prolific") {
+      const { multiplayer: service } = getServices();
       this.state.treatmentParams = new TreatmentParams(
         await service.getUserNextFreeplayTreatment(user.id)
       );
@@ -103,8 +103,8 @@ export class SetGameParamsCmd extends CmdWithoutPayload {
 
 export class PersistGameCmd extends CmdWithoutPayload {
   async execute() {
-    const { triogame, study } = getServices();
-    const game = await triogame.createGame(this.state);
+    const { multiplayer, study } = getServices();
+    const game = await multiplayer.createGame(this.state);
 
     if (this.state.type === "prolificVariable" || this.state.type === "prolificBaseline") {
       await study.setProlificParticipantPlayer(this.state.type, game.players);
@@ -331,7 +331,7 @@ export class ProcessRoundCmd extends CmdWithoutPayload {
 
 export class PersistRoundCmd extends CmdWithoutPayload {
   async execute() {
-    const { triogame: service } = getServices();
+    const { multiplayer: service } = getServices();
     //FIXME: change how round gets saved in the db
     await service.createRound(this.state, systemHealthInvestment, pointsInvestment);
   }
@@ -370,14 +370,14 @@ export class SetNextRoundCmd extends CmdWithoutPayload {
   }
 }
 
-export class EndGameCmd extends Cmd<{ status: TrioGameStatus }> {
+export class EndGameCmd extends Cmd<{ status: MultiGameStatus }> {
   async execute({ status } = this.payload) {
     this.clock.clear();
     // wait for a few seconds so the client can see the final state
     await new Promise(resolve => setTimeout(resolve, 3000));
 
     this.state.status = status;
-    const { triogame: service } = getServices();
+    const { multiplayer: service } = getServices();
     await service.updateGameStatus(this.state.gameId, status);
     await Promise.all(
       this.state.players.map(player => {
