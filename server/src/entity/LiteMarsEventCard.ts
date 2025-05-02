@@ -2,8 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn } from "typeorm";
 import { LiteGameType } from "@port-of-mars/shared/lite";
 import { Role, ROLES } from "@port-of-mars/shared/types";
 
-@Entity()
-export class SoloMarsEventCard {
+export abstract class BaseLiteMarsEventCard {
   @PrimaryGeneratedColumn()
   id!: number;
 

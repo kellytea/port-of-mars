@@ -1,13 +1,13 @@
 import _ from "lodash";
 import { Command } from "@colyseus/command";
 import { User } from "@port-of-mars/server/entity";
-import { MultiGameRoom } from "@port-of-mars/server/rooms/multiplayer";
+import { LiteGameRoom } from "@port-of-mars/server/rooms/multiplayer";
 import { getServices } from "@port-of-mars/server/services";
 import { getRandomIntInclusive } from "@port-of-mars/server/util";
 import { EventCard, Player, TreatmentParams } from "./state";
-import { MultiGameStatus } from "@port-of-mars/shared/multiplayer";
+import { LiteGameStatus } from "@port-of-mars/shared/lite";
 
-abstract class Cmd<Payload> extends Command<MultiGameRoom, Payload> {
+abstract class Cmd<Payload> extends Command<LiteGameRoom, Payload> {
   get defaultParams() {
     return this.state.defaultParams;
   }

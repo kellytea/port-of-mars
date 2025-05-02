@@ -36,21 +36,22 @@ export interface EventCardData {
 
 export type ThresholdInformation = "unknown" | "range" | "known";
 
-//FIXME: treatment stuff needs to be refactored
 export interface TreatmentData {
-  id: string;
-  treatmentName: string;
-  description: string;
-  cards: Array<EventCardData>;
+  gameType: LiteGameType;
+  isNumberOfRoundsKnown: boolean;
+  isEventDeckKnown: boolean;
+  thresholdInformation: ThresholdInformation;
+  isLowResSystemHealth: boolean;
+  instructions?: string;
 }
 
-export type MultiGameType = "multiProlificBaseline" | "multiProlificInterative";
+export type LiteGameType = "prolificBaseline" | "prolificInteractive";
 
-export type MultiGameStatus = "incomplete" | "victory" | "defeat";
+export type LiteGameStatus = "incomplete" | "victory" | "defeat";
 
 export type EventVoteType = "YES_OR_NO" | "VOTE_PLAYER";
 
-export interface MultiGameParams {
+export interface LiteGameParams {
   maxRound: { min: number; max: number };
   roundTransitionDuration: number;
   twoEventsThreshold: { min: number; max: number };
@@ -67,9 +68,9 @@ export interface MultiGameParams {
   resources: number;
 }
 
-export interface MultiClientState {
-  type: MultiGameType;
-  status: MultiGameStatus;
+export interface LiteClientState {
+  type: LiteGameType;
+  status: LiteGameStatus;
   timeRemaining: number;
   systemHealth: number;
   twoEventsThreshold?: number;

@@ -1,13 +1,12 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { TrioGameType, ThresholdInformation } from "@port-of-mars/shared/triogame/types";
+import { LiteGameType, ThresholdInformation } from "@port-of-mars/shared/lite/types";
 
-@Entity()
-export class TrioGameTreatment {
+export abstract class BaseLiteGameTreatment {
   @PrimaryGeneratedColumn()
   id!: number;
 
   @Column({ default: "freeplay" })
-  gameType!: TrioGameType;
+  gameType!: LiteGameType;
 
   @Column()
   isNumberOfRoundsKnown!: boolean;
@@ -27,3 +26,9 @@ export class TrioGameTreatment {
   @Column({ nullable: true })
   instructions?: string;
 }
+
+@Entity()
+export class SoloGameTreatment extends BaseLiteGameTreatment {}
+
+@Entity()
+export class LiteGameTreatment extends BaseLiteGameTreatment {}

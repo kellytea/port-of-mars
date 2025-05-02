@@ -1,8 +1,8 @@
 import { Client, Room } from "colyseus";
 import { MultiGameState } from "./state";
 import { User } from "@port-of-mars/server/entity/User";
-import { MultiGameType } from "@port-of-mars/shared/multiplayer";
-export interface MultiGameOpts {
+import { LiteGameType } from "@port-of-mars/shared/lite";
+export interface LiteGameOpts {
   users: Array<User>;
-  type: MultiGameType;
+  type: MultiGameState;
 }

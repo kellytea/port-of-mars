@@ -1,10 +1,10 @@
 import {
   Column,
   Entity,
-  ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
   CreateDateColumn,
+  ManyToOne,
+  OneToOne,
   JoinColumn,
   OneToMany,
 } from "typeorm";
@@ -14,12 +14,11 @@ import { Role, ROLES } from "@port-of-mars/shared/types";
 import { LitePlayerDecision } from "./LitePlayerDecision";
 import { LitePlayerVote } from "./LitePlayerVote";
 
-@Entity()
-export class SoloPlayer {
+export abstract class BaseLitePlayer {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(type => User, user => user.soloPlayers, { nullable: false })
+  @ManyToOne(type => User, { nullable: false })
   user!: User;
 
   @Column()
@@ -27,13 +26,6 @@ export class SoloPlayer {
 
   @Column({ default: "" })
   playerIp!: string;
-
-  @OneToOne(type => SoloGame, game => game.player, { nullable: true })
-  @JoinColumn()
-  game!: SoloGame;
-
-  @Column({ nullable: true })
-  gameId!: number;
 
   @Column("int", { nullable: true })
   points!: number | null;

@@ -9,7 +9,7 @@ import { StatsService } from "@port-of-mars/server/services/stats";
 import { TimeService } from "@port-of-mars/server/services/time";
 import { GameService } from "@port-of-mars/server/services/game";
 import { SoloGameService } from "@port-of-mars/server/services/sologame";
-import { MultiplayerService } from "@port-of-mars/server/services/multiplayer";
+import { LiteGameService } from "@port-of-mars/server/services/litegame";
 import { RedisSettings } from "@port-of-mars/server/services/settings";
 import dataSource from "@port-of-mars/server/datasource";
 import { createClient, RedisClient } from "redis";
@@ -50,12 +50,12 @@ export class ServiceProvider {
     return this._sologame;
   }
 
-  private _multiplayer?: MultiplayerService;
-  get multiplayer(): MultiplayerService {
-    if (!this._multiplayer) {
-      this._multiplayer = new MultiplayerService(this);
+  private _litegame?: LiteGameService;
+  get multiplayer(): LiteGameService {
+    if (!this._litegame) {
+      this._litegame = new LiteGameService(this);
     }
-    return this._multiplayer;
+    return this._litegame;
   }
 
   private _quiz?: QuizService;

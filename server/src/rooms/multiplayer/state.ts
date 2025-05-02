@@ -1,13 +1,13 @@
 import { Schema, ArraySchema, type, MapSchema } from "@colyseus/schema";
 import {
   EventCardData,
-  MultiGameParams,
-  MultiGameStatus,
-  MultiGameType,
+  LiteGameParams,
+  LiteGameStatus,
+  LiteGameType,
   TreatmentData,
-} from "@port-of-mars/shared/multiplayer";
+} from "@port-of-mars/shared/lite";
 import { Role } from "@port-of-mars/shared/types";
-import { MultiGameOpts } from "./types";
+import { LiteGameOpts } from "./types";
 import { isProduction } from "@port-of-mars/shared/settings";
 import { settings } from "@port-of-mars/server/settings";
 import { User } from "@port-of-mars/server/entity/User";
@@ -48,14 +48,14 @@ export class EventCard extends Schema {
 export class Player extends Schema {
   userId = 0;
   @type("string") username = "";
-  @type("uint8") resources = MultiGameState.DEFAULTS.multiProlificBaseline.resources;
-  @type("uint8") points = MultiGameState.DEFAULTS.multiProlificBaseline.points;
+  @type("uint8") resources = LiteGameState.DEFAULTS.prolificBaseline.resources;
+  @type("uint8") points = LiteGameState.DEFAULTS.prolificBaseline.points;
   @type("uint8") pendingInvestment: number | null = null;
   @type("uint8") pointsEarned: number | null = null;
 }
 
 export class TreatmentParams extends Schema {
-  @type("string") gameType: MultiGameType = "prolific";
+  @type("string") gameType: LiteGameType = "prolificBaseline";
   @type("boolean") isNumberOfRoundsKnown = false;
   @type("boolean") isEventDeckKnown = false;
   @type("string") thresholdInformation: "unknown" | "range" | "known" = "unknown";
@@ -71,13 +71,13 @@ export class TreatmentParams extends Schema {
   }
 }
 
-export class MultiGameState extends Schema {
-  @type("string") type: MultiGameType = "multiProlificBaseline";
-  @type("string") status: MultiGameStatus = "incomplete";
+export class LiteGameState extends Schema {
+  @type("string") type: LiteGameType = "prolificBaseline";
+  @type("string") status: LiteGameStatus = "incomplete";
   @type("int8") systemHealth =
-    MultiGameState.DEFAULTS.multiProlificBaseline.systemHealthMax -
-    MultiGameState.DEFAULTS.multiProlificBaseline.systemHealthWear;
-  @type("uint8") timeRemaining = MultiGameState.DEFAULTS.multiProlificBaseline.timeRemaining;
+    LiteGameState.DEFAULTS.prolificBaseline.systemHealthMax -
+    LiteGameState.DEFAULTS.prolificBaseline.systemHealthWear;
+  @type("uint8") timeRemaining = LiteGameState.DEFAULTS.prolificBaseline.timeRemaining;
   @type("uint8") round = 1;
   @type(TreatmentParams) treatmentParams = new TreatmentParams();
 
@@ -95,7 +95,7 @@ export class MultiGameState extends Schema {
   @type("boolean") canInvest = false;
   @type("boolean") isRoundTransitioning = false;
 
-  constructor(data: MultiGameOpts) {
+  constructor(data: LiteGameOpts) {
     super();
     if (isProduction()) {
       assert.equal(data.users.length, 3, "Must have three players");
@@ -107,12 +107,12 @@ export class MultiGameState extends Schema {
   gameId!: number;
   users: Array<User> = [];
   availableRoles: Array<Role> = ["Politician", "Entrepreneur", "Researcher"]; // temporarily subset of roles for trio version
-  roundInitialSystemHealth = MultiGameState.DEFAULTS.multiProlificBaseline.systemHealthMax;
+  roundInitialSystemHealth = LiteGameState.DEFAULTS.prolificBaseline.systemHealthMax;
   roundInitialPoints: Array<number> = [];
   // hidden properties
-  maxRound = MultiGameState.DEFAULTS.multiProlificBaseline.maxRound.max;
-  twoEventsThreshold = MultiGameState.DEFAULTS.multiProlificBaseline.twoEventsThreshold.max;
-  threeEventsThreshold = MultiGameState.DEFAULTS.multiProlificBaseline.threeEventsThreshold.max;
+  maxRound = LiteGameState.DEFAULTS.prolificBaseline.maxRound.max;
+  twoEventsThreshold = LiteGameState.DEFAULTS.prolificBaseline.twoEventsThreshold.max;
+  threeEventsThreshold = LiteGameState.DEFAULTS.prolificBaseline.threeEventsThreshold.max;
   eventCardDeck: Array<EventCard> = [];
 
   get points() {
@@ -183,7 +183,7 @@ export class MultiGameState extends Schema {
   }
 
   get defaultParams() {
-    return MultiGameState.DEFAULTS[this.type];
+    return LiteGameState.DEFAULTS[this.type];
   }
 
   static STATIC_PARAMS = {
@@ -193,8 +193,8 @@ export class MultiGameState extends Schema {
     resources: 10,
   };
 
-  static DEFAULTS: Record<MultiGameType, MultiGameParams> = {
-    multiProlificBaseline: {
+  static DEFAULTS: Record<LiteGameType, LiteGameParams> = {
+    prolificBaseline: {
       maxRound: { min: 8, max: 12 },
       roundTransitionDuration: 3,
       twoEventsThreshold: { min: 12, max: 20 },
@@ -203,9 +203,9 @@ export class MultiGameState extends Schema {
       eventTimeout: 10,
       startingSystemHealth: 20,
       numPlayers: 3,
-      ...MultiGameState.STATIC_PARAMS,
+      ...LiteGameState.STATIC_PARAMS,
     },
-    multiProlificInterative: {
+    prolificInteractive: {
       maxRound: { min: 8, max: 12 },
       roundTransitionDuration: 3,
       twoEventsThreshold: { min: 12, max: 20 },
@@ -214,18 +214,8 @@ export class MultiGameState extends Schema {
       eventTimeout: 10,
       startingSystemHealth: 20,
       numPlayers: 3,
-      ...MultiGameState.STATIC_PARAMS,
+      ...LiteGameState.STATIC_PARAMS,
     },
-    // prolificBaseline: {
-    //   maxRound: { min: 8, max: 8 },
-    //   roundTransitionDuration: 1,
-    //   twoEventsThreshold: { min: -1, max: -1 },
-    //   threeEventsThreshold: { min: -2, max: -2 },
-    //   timeRemaining: 15,
-    //   eventTimeout: 5,
-    //   startingSystemHealth: 15,
-    //   ...MultiGameState.STATIC_PARAMS,
-    // },
     // prolificVariable: {
     //   maxRound: { min: 11, max: 11 },
     //   roundTransitionDuration: 1,
@@ -236,7 +226,7 @@ export class MultiGameState extends Schema {
     //   timeRemaining: 15,
     //   eventTimeout: 5,
     //   startingSystemHealth: 15,
-    //   ...MultiGameState.STATIC_PARAMS,
+    //   ...LiteGameState.STATIC_PARAMS,
     // },
   };
 }

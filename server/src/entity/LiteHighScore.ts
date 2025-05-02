@@ -1,10 +1,10 @@
 import {
   Column,
   Entity,
-  OneToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
   CreateDateColumn,
+  UpdateDateColumn,
+  OneToOne,
   ManyToOne,
   JoinColumn,
 } from "typeorm";
@@ -12,12 +12,11 @@ import { User } from "./User";
 import { SoloGame } from "./LiteGame";
 import { LitePlayer } from "./LitePlayer";
 
-@Entity()
-export class SoloHighScore {
+export abstract class BaseLiteHighScore {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @ManyToOne(type => User, { nullable: false })
+  @ManyToOne(() => User, { nullable: false })
   user!: User;
 
   @Column()
@@ -31,13 +30,6 @@ export class SoloHighScore {
 
   @Column()
   maxRound!: number;
-
-  @OneToOne(type => SoloGame, { nullable: true })
-  @JoinColumn()
-  game!: SoloGame;
-
-  @Column({ nullable: true })
-  gameId!: number;
 
   @CreateDateColumn()
   dateCreated!: Date;

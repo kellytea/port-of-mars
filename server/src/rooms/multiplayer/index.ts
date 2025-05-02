@@ -1,7 +1,7 @@
 import { Client, Delayed, Room } from "colyseus";
 import { Dispatcher } from "@colyseus/command";
 import * as http from "http";
-import { MultiGameState, Player } from "@port-of-mars/server/rooms/multiplayer/state";
+import { LiteGameState, Player } from "@port-of-mars/server/rooms/multiplayer/state";
 import { settings } from "@port-of-mars/server/settings";
 import { getServices } from "@port-of-mars/server/services";
 import {
@@ -13,13 +13,13 @@ import {
 } from "./commands";
 import { User } from "@port-of-mars/server/entity";
 import { EventContinue, Invest } from "@port-of-mars/shared/sologame";
-import { MultiGameOpts } from "@port-of-mars/server/rooms/multiplayer/types";
+import { LiteGameOpts } from "@port-of-mars/server/rooms/multiplayer/types";
 
 const logger = settings.logging.getLogger(__filename);
 
-export class MultiGameRoom extends Room<MultiGameState> {
+export class LiteGameRoom extends Room<LiteGameState> {
   public static get NAME() {
-    return "trio_game_room";
+    return "lite_game_room";
   }
 
   autoDispose = true;
@@ -29,9 +29,9 @@ export class MultiGameRoom extends Room<MultiGameState> {
   dispatcher = new Dispatcher(this);
   eventTimeout: Delayed | null = null;
 
-  async onCreate(options: MultiGameOpts) {
-    logger.trace("TrioGameRoom '%s' created", this.roomId);
-    this.setState(new MultiGameState(options));
+  async onCreate(options: LiteGameOpts) {
+    logger.trace("LiteGameRoom '%s' created", this.roomId);
+    this.setState(new LiteGameState(options));
     this.state.type = options.type || "freeplay";
     this.setPrivate(true);
     this.registerAllHandlers();
@@ -77,12 +77,12 @@ export class MultiGameRoom extends Room<MultiGameState> {
   }
 
   onJoin(client: Client, options: any, auth: User) {
-    logger.trace("Client %s joined TrioGameRoom %s", auth.username, this.roomId);
+    logger.trace("Client %s joined LiteGameRoom %s", auth.username, this.roomId);
     this.dispatcher.dispatch(new SetPlayerCmd().setPayload({ users: [auth] }));
   }
 
   async onDispose(): Promise<void> {
-    logger.trace("Disposing of TrioGameRoom '%s'", this.roomId);
+    logger.trace("Disposing of LiteGameRoom '%s'", this.roomId);
     this.dispatcher.stop();
   }
 

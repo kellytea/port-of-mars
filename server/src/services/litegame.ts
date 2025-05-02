@@ -1,37 +1,36 @@
 import { BaseService } from "@port-of-mars/server/services/db";
 import {
   EventCardData,
-  MultiGameStatus,
-  MultiGameType,
+  LiteGameStatus,
+  LiteGameType,
   TreatmentData,
-} from "@port-of-mars/shared/multiplayer/types";
+} from "@port-of-mars/shared/lite/types";
 import {
-  //FIXME: change solo entities to multi
-  TrioGame,
-  TrioGameRound,
-  TrioGameTreatment,
-  TrioMarsEventDeck,
-  SoloMarsEventDeckCard,
-  TrioPlayer,
-  TrioPlayerDecision,
+  LiteGameRound,
+  LiteMarsEventCard,
+  LiteMarsEventDeck,
+  LiteMarsEventDeckCard,
+  LitePlayer,
+  LitePlayerDecision,
   User,
 } from "@port-of-mars/server/entity";
-
+import { LiteGame } from "@port-of-mars/server/entity/LiteGame";
+import { LiteGameTreatment } from "@port-of-mars/server/entity/LiteGameTreatment";
 import { getRandomIntInclusive } from "@port-of-mars/server/util";
 import { createObjectCsvWriter } from "csv-writer";
 import { getLogger } from "@port-of-mars/server/settings";
-import { MultiGameState } from "../rooms/multiplayer/state";
+import { LiteGameState } from "../rooms/multiplayer/state";
 import { getServices } from ".";
-import { MultiGameOpts } from "../rooms/multiplayer/types";
+import { LiteGameOpts } from "../rooms/multiplayer/types";
 
 const logger = getLogger(__filename);
 
-export class MultiplayerService extends BaseService {
-  async drawEventCardDeck(gameType: MultiGameType, treatmentId: string): Promise<EventCardData[]> {
+export class LiteGameService extends BaseService {
+  async drawEventCardDeck(gameType: LiteGameType, treatmentId: string): Promise<EventCardData[]> {
     /**
      * draw a deck of event cards based on gametype and treatment (ordered by id)
      */
-    const cards = await this.em.getRepository(MultiplayerEventCard).find({
+    const cards = await this.em.getRepository(LiteMarsEventCard).find({
       where: { gameType },
       order: { id: "ASC" },
     });
@@ -85,13 +84,13 @@ export class MultiplayerService extends BaseService {
     return deck;
   }
 
-  async getUserNextFreeplayTreatment(userId: number): Promise<TrioGameTreatment> {
+  async getUserNextFreeplayTreatment(userId: number): Promise<LiteGameTreatment> {
     /**
      * get the next treatment (in order) that a user has not yet seen. If they have seen all
      * then return a random one.
      */
     const gameType = "freeplay";
-    const treatmentRepo = this.em.getRepository(TrioGameTreatment);
+    const treatmentRepo = this.em.getRepository(LiteGameTreatment);
     const availableTreatmentIds = (
       await treatmentRepo.find({
         select: ["id"],
@@ -126,11 +125,11 @@ export class MultiplayerService extends BaseService {
     return treatmentRepo.findOneByOrFail({ id: randomTreatmentId });
   }
 
-  async getTreatmentById(id: number): Promise<TrioGameTreatment> {
-    return this.em.getRepository(TrioGameTreatment).findOneByOrFail({ id });
+  async getTreatmentById(id: number): Promise<LiteGameTreatment> {
+    return this.em.getRepository(LiteGameTreatment).findOneByOrFail({ id });
   }
 
-  async buildGameOpts(usernames: Array<string>): Promise<MultiGameOpts> {
+  async buildGameOpts(usernames: Array<string>): Promise<LiteGameOpts> {
     const services = getServices();
     for (const u of usernames) {
       logger.debug("username: %s", u);
@@ -148,13 +147,13 @@ export class MultiplayerService extends BaseService {
     };
   }
 
-  async createGame(state: MultiGameState): Promise<TrioGame> {
+  async createGame(state: LiteGameState): Promise<LiteGame> {
     /**
      * create a new TrioGame in the db and return it
      */
-    const gameRepo = this.em.getRepository(TrioGame);
-    const playerRepo = this.em.getRepository(TrioPlayer);
-    const players: TrioPlayer[] = [];
+    const gameRepo = this.em.getRepository(LiteGame);
+    const playerRepo = this.em.getRepository(LitePlayer);
+    const players: LitePlayer[] = [];
     await Promise.all(
       state.players.map(async p => {
         const player = await this.createPlayer(p.userId);
@@ -190,8 +189,8 @@ export class MultiplayerService extends BaseService {
     });
   }
 
-  async createPlayer(userId: number): Promise<TrioPlayer> {
-    const repo = this.em.getRepository(TrioPlayer);
+  async createPlayer(userId: number): Promise<LitePlayer> {
+    const repo = this.em.getRepository(LitePlayer);
     const player = repo.create({
       userId: userId,
     });
@@ -199,8 +198,8 @@ export class MultiplayerService extends BaseService {
     return player;
   }
 
-  async findTreatment(treatmentData: TreatmentData): Promise<TrioGameTreatment> {
-    return this.em.getRepository(TrioGameTreatment).findOneOrFail({
+  async findTreatment(treatmentData: TreatmentData): Promise<LiteGameTreatment> {
+    return this.em.getRepository(LiteGameTreatment).findOneOrFail({
       where: {
         gameType: treatmentData.gameType,
         isNumberOfRoundsKnown: treatmentData.isNumberOfRoundsKnown,
@@ -211,9 +210,9 @@ export class MultiplayerService extends BaseService {
     });
   }
 
-  async createDeck(cardData: EventCardData[]): Promise<TrioMarsEventDeck> {
-    const deckCardRepo = this.em.getRepository(SoloMarsEventDeckCard);
-    const deckRepo = this.em.getRepository(TrioMarsEventDeck);
+  async createDeck(cardData: EventCardData[]): Promise<LiteMarsEventDeck> {
+    const deckCardRepo = this.em.getRepository(LiteMarsEventDeckCard);
+    const deckRepo = this.em.getRepository(LiteMarsEventDeck);
     const deck = deckRepo.create({});
     await deckRepo.save(deck);
     for (const card of cardData) {
@@ -231,8 +230,8 @@ export class MultiplayerService extends BaseService {
     return deck;
   }
 
-  async updateGameStatus(gameId: number, status: MultiGameStatus) {
-    const repo = this.em.getRepository(TrioGame);
+  async updateGameStatus(gameId: number, status: LiteGameStatus) {
+    const repo = this.em.getRepository(LiteGame);
     const game = await repo.findOneByOrFail({ id: gameId });
     game.status = status;
     await repo.save(game);
@@ -242,9 +241,9 @@ export class MultiplayerService extends BaseService {
     gameId: number,
     points: number,
     maxRound: number,
-    status: MultiGameStatus
+    status: LiteGameStatus
   ) {
-    const repo = this.em.getRepository(TrioPlayer);
+    const repo = this.em.getRepository(LitePlayer);
     const player = await repo.findOneByOrFail({ gameId });
     player.points = points;
     await repo.save(player);
@@ -255,7 +254,7 @@ export class MultiplayerService extends BaseService {
   }
 
   async createRound(
-    state: MultiGameState,
+    state: LiteGameState,
     systemHealthInvestment: number,
     pointsInvestment: number
   ) {
@@ -263,9 +262,9 @@ export class MultiplayerService extends BaseService {
      * finalize/persist a game round by creating a new SoloGameRound tied to the SoloGame
      * with id = gameId
      */
-    const roundRepo = this.em.getRepository(TrioGameRound);
-    const decisionRepo = this.em.getRepository(TrioPlayerDecision);
-    const deckCardRepo = this.em.getRepository(SoloMarsEventDeckCard);
+    const roundRepo = this.em.getRepository(LiteGameRound);
+    const decisionRepo = this.em.getRepository(LitePlayerDecision);
+    const deckCardRepo = this.em.getRepository(LiteMarsEventDeckCard);
     const decision = decisionRepo.create({
       systemHealthInvestment,
       pointsInvestment,
@@ -292,12 +291,12 @@ export class MultiplayerService extends BaseService {
     return round;
   }
 
-  async getGameIds(type: MultiGameType, start?: Date, end?: Date): Promise<Array<number>> {
+  async getGameIds(type: LiteGameType, start?: Date, end?: Date): Promise<Array<number>> {
     /**
      * get all game ids for games of a certain type that were created between start and end
      */
     let query = this.em
-      .getRepository(TrioGame)
+      .getRepository(LiteGame)
       .createQueryBuilder("game")
       .select("game.id")
       .where("game.type = :type", { type });
@@ -318,7 +317,7 @@ export class MultiplayerService extends BaseService {
      * gameId, userId. username, status, points, dateCreated, ...treatment
      */
     let query = this.em
-      .getRepository(TrioGame)
+      .getRepository(LiteGame)
       .createQueryBuilder("game")
       .leftJoinAndSelect("game.player", "player")
       .leftJoinAndSelect("player.user", "user")
@@ -363,7 +362,7 @@ export class MultiplayerService extends BaseService {
      * resourcesEffect, pointsEffect
      */
     let query = this.em
-      .getRepository(SoloMarsEventDeckCard)
+      .getRepository(LiteMarsEventDeckCard)
       .createQueryBuilder("deckCard")
       .leftJoinAndSelect("deckCard.round", "round")
       .leftJoinAndSelect("round.game", "game")
@@ -413,7 +412,7 @@ export class MultiplayerService extends BaseService {
      * and tear has been applied
      */
     let query = this.em
-      .getRepository(TrioGameRound)
+      .getRepository(LiteGameRound)
       .createQueryBuilder("round")
       .leftJoinAndSelect("round.game", "game")
       .leftJoinAndSelect("round.decision", "decision")
